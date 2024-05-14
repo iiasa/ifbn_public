@@ -1,0 +1,10 @@
+[
+  {
+    "outputFile": "wwwroot/css/freelancer/freelancer.css",
+    "inputFile": "wwwroot/css/freelancer/freelancer.less"
+  },
+  {
+    "outputFile": "wwwroot/scripts/home-index.es5.js",
+    "inputFile": "wwwroot/scripts/home-index.js"
+  }
+]

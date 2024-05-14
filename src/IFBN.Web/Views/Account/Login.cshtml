@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<section class="portfolio" id="login-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>Login</h2>
+                <hr class="star-light">
+            </div>
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <p>Select your preferred login provider.</p>
+                </div>
+            </div>
+            <div class="row" id="loginProviderBox">
+                <div class="col-lg-1 col-lg-offset-2 text-center">
+                    <a href="@Url.Action("External", new { provider = "Google" })">
+                        <img src="~/Images/google.png" alt="Sign in with Google" />
+                    </a>
+                </div>
+				<div class="col-lg-1 col-lg-offset-2 text-center">
+					<a href="@Url.Action("External", new { provider = "Facebook" })">
+						<img src="~/Images/facebook.png" alt="Sign in with Facebook" />
+					</a>
+				</div>
+				<div class="col-lg-1 col-lg-offset-2 text-center">
+					<a href="@Url.Action("External", new { provider = "FusionAuth" })">
+						<img src="~/Images/ifbn_fusionauth.png" alt="Sign in with IFBN" />
+					</a>
+				</div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,12 @@
+{
+  "name": "asp.net",
+  "private": true,
+  "dependencies": {
+    "jquery": "2.2.4",
+    "jquery-validation": "1.15.0",
+    "jquery-validation-unobtrusive": "3.2.6",
+    "bootswatch": "v3.3.7",
+    "font-awesome": "v4.7.0",
+    "knockout": "3.4.0"
+  }
+}

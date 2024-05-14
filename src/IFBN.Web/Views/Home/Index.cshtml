@@ -1,0 +1,683 @@
+﻿@using IFBN.Data.Entities
+@model IndexViewModel
+
+@inject SignInManager<ApplicationUser> signInManager
+@inject UserManager<ApplicationUser> userManager
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+@section scripts {
+    <script defer="defer">
+        $(document).ready(function () {
+			var plotLocations = @Html.Raw(IFBN.Web.Core.JsonHelper.EncodeCamelCase(Model.PlotLocations));
+			var confidentialPlotLocations = @Html.Raw(IFBN.Web.Core.JsonHelper.EncodeCamelCase(Model.ConfidentialPlotLocations));
+
+            map.initialize(plotLocations, confidentialPlotLocations);
+        });
+    </script>
+}
+
+<!-- Header -->
+<header>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <img class="img-responsive" src="~/images/logo_geo_trees.png" alt="">
+                <div class="intro-text">
+                    <span class="name">data.GEO-TREES</span>
+                    <hr class="star-light">
+                    <span class="skills">Global forest plot data for earth observation and land surface modelling from the GEO-TREES initiative (<a href="http://geo-trees.org" target="_blank">http://geo-trees.org</a>).</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- Portfolio Grid Section -->
+<section class="portfolio" id="map-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>Map</h2>
+                <hr class="star-primary">
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-9 col-md-8 col-sm-12 text-center">
+                <div id="map" class="map">
+                    <div id="info"></div>
+                    <div id="popup"></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div id="plotinfo" class="data-box">
+                    <h3 class="text-center">Plot information</h3>
+                    <p id="plotdata" data-bind="visible: title().length == 0 && !loading()">Click on a plot in the map on the left hand side to load and visualize its data.</p>
+                    <p id="loading" data-bind="visible: title().length == 0 && loading()"><img src="Images/loading.gif" /></p>
+                    <h4 data-bind="html: title"></h4>
+                    <div data-bind="html: siteDetails"></div>
+                    <div data-bind="html: plotDetails"></div>
+                    <div data-bind="visible: photoUrl().length > 0">
+                        <a data-bind="attr: { href: photoUrl }" href="#" target="_blank">
+                            <img data-bind="attr: { src: photoUrl }" width="150" />
+                        </a>
+                    </div>
+                    <div data-bind="html: link"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row plot-notice">
+            <div class="col-lg-2 col-lg-offset-1 col-md-2 col-sm-5 col-sm-offset-1">
+                <p>
+                    <strong>
+                        Biomass maps legend:
+                    </strong>
+                </p>
+                <img src="~/images/legend.png" alt="biomass layer legend" />
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6">
+                <p>
+                    <strong>Resources:</strong>
+                </p>
+                <p>
+                    Tropics by WUR <a href="http://onlinelibrary.wiley.com/doi/10.1111/gcb.13139/full" target="_blank">reference</a>
+                </p>
+                <p>
+                    GlobBiomass <a href="https://doi.org/10.5194/essd-13-3927-2021" target="_blank">reference</a>
+                </p>
+                <p>
+                    CCI Biomass <a href="https://doi.org/10.5285/BEDC59F37C9545C981A839EB552E4084" target="_blank">reference</a>
+                </p>
+                <p>
+                    Hansen tree cover 2000 <a href="http://earthenginepartners.appspot.com/science-2013-global-forest" target="_blank">reference</a>
+                </p>
+                @*<p>
+                        Pan Boreal <a href="http://onlinelibrary.wiley.com/doi/10.1111/geb.12125/abstract" target="_blank">reference</a>
+                    </p>
+                    <p>
+                        IIASA hybrid biomass <a href="http://www.iiasa.ac.at/Research/FOR/biomass.html" target="_blank">reference</a>
+                    </p>*@
+                @*<div>
+                        <p>
+                            <strong>Please note:</strong>
+                        </p>
+                        <p class="text-justify">
+                            The plots, shown with grey marker symbols on the map, have approximated geographic locations
+                            (i.e. lat/long rounded to the nearest 0.1&nbsp;degrees) in order to avoid any possible IP issues.
+                            The plots primarily represent RAINFOR and AfriTRON continental networks as published in
+                            <a href="http://www.forestplots.net/data-packages/brienen-et-al-2015" target="_blank">Brienen et al. 2015</a>,
+                            <a href="http://rstb.royalsocietypublishing.org/content/368/1625/20120295" target="_blank">Lewis et al. 2013</a>,
+                            <a href="http://onlinelibrary.wiley.com/doi/10.1111/gcb.13139/full" target="_blank">Avitabile et al. 2016</a>.
+                        </p>
+                    </div>*@
+            </div>
+            <div class="col-lg-5 col-md-6 col-sm-12">
+                <div id="download" class="data-box">
+                    <h3 class="text-center">Download data</h3>
+
+
+                    @if (!signInManager.IsSignedIn(User))
+                    {
+                        <p>
+                            Only logged in users are allowed to download.
+                        </p>
+                    }
+
+
+                    @await Html.PartialAsync("_LoginPartial")
+                    @if (signInManager.IsSignedIn(User))
+                    {
+                        <div class="form-group" id="form_DownloadType">
+                            <label>geojson</label>
+                            @Html.RadioButtonFor(model => model.DownloadType, "geojson")
+                            <label>csv</label>
+                            @Html.RadioButtonFor(model => model.DownloadType, "csv")
+                        </div>
+                        <div class="form-group">
+                            <label for="countrySelect">Select country:</label>
+                            <select id="countrySelect" class="form-control">
+                                @foreach (string country in Model.Countries)
+                                {
+                                    <option>@country</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button id="downloadButton" class="btn btn-primary">Country</button>
+                            <label for="countrySelect">or</label>
+                            <button id="downloadButtonBBox" class="btn btn-primary">Current extent</button>
+                        </div>
+                        <div class="form-group" id="form_IntendedUse">
+                            <label>Intended Use </label>
+                            @Html.TextBoxFor(model => model.IntendedUse)
+                        </div>
+                        <div class="form-group" id="form_TermsConditions">
+                            @Html.CheckBoxFor(model => model.AcceptTermsConditions)
+                            <label>Accept </label>
+                            <a href="~/Docs/FOS_TermsConditions_v2019.10.17.pdf" target="_blank">terms and conditions</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- About Section -->
+<section class="success" id="about-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>About</h2>
+                <hr class="star-light">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-lg-offset-2">
+                <p>DATA.GEO-TREES, formerly named Forest Observation System is an international cooperation to establish a global in-situ forest biomass database to support earth observation and to encourage investment in relevant field-based observations and science.</p>
+            </div>
+            <div class="col-lg-4">
+                <p>DATA.GEO-TREES provides well curated biomass plot data in a unified format, that is aggregated from tree level data consistently across different networks.</p>
+            </div>
+            @*<div class="col-lg-8 col-lg-offset-2 text-center">
+                    <a href="#" class="btn btn-lg btn-outline">
+                        <i class="fa fa-download"></i> Download Theme
+                    </a>
+                </div>*@
+        </div>
+    </div>
+</section>
+
+
+<!-- News Section -->
+
+<section class="news" id="news-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>News</h2>
+                <hr class="star-primary">
+            </div>
+        </div>
+        <div class="row">
+            <ul>
+                <li>
+                    <p>
+                        FOS presentation at the ESA Living Planet Symposium, Milan, May 16, 2019
+                        (<a href="~/Docs/2019_05_FOS_Schepaschenko.pdf" target="_blank">download</a>)
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        Recent paper by Jerome Chave et al. <a href="https://link.springer.com/article/10.1007%2Fs10712-019-09528-w" target="_blank">Ground Data are Essential for Biomass Remote Sensing Missions.</a>
+                        Surveys in Geophysics - DOI:10.1007/s10712-019-009528-w
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        Schepaschenko D., Chave J., Phillips O.L., Lewis S.L., Davies S.J., Réjou-Méchain M., Sist P., Scipal K., et al. (2019). <a href="https://www.nature.com/articles/s41597-019-0196-1" target="_blank">The Forest Observation System, building a global reference dataset for remote sensing of forest biomass.</a>
+                        Scientific Data 6 (1): 198. DOI:10.1038/s41597-019-0196-1.
+                    </p>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- Contribute Section -->
+
+<section class="success" id="contribute-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>Contribute</h2>
+                <hr class="star-light">
+            </div>
+        </div>
+        <div class="row">
+            <p>
+                You are very welcome to join GEO-TREES. We are looking for more sample plot data, which meet our requirements:
+            </p>
+            <ul>
+                <li>
+                    Permanent forest plots with ability to re-measure (funding permitted) at start (2023) and end (2028) of ESA BIOMASS mission
+                </li>
+                <li>
+                    Size of a plot should be 0.25 ha at least, but 1 ha (or larger) plots are preferable. Large plots should be divided by 50x50 m sub-plots
+                </li>
+                <li>
+                    Every trees (above certain DBH threshold) should get species identification, measured by DBH and height. We will use tree-by-tree data to calculate plot-level biomass and height. We will publish (if you allow) plot-level data only
+                </li>
+                <li>
+                    Accurate location of the plot: multiple GPS measurement of every corner of the plot
+                </li>
+                <li>
+                    Example of input data table: <a href="~/Docs/FOS_Plots_example_en.xls" target="_blank">FOS_Plots_example_en.xls</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</section>
+
+
+<!-- Data Package Section -->
+
+<section class="portfolio" id="data-package-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>Data package</h2>
+                <hr class="star-primary">
+            </div>
+        </div>
+
+        <div class="row center-row" id="data-package-content">
+            <p> <a href="https://scholar.google.com/scholar?oi=bibs&hl=en&cites=4562132725482497538">List to the articles citing data.GEO-TREES data package</a></p>
+
+            <p><strong>This package contains data: </strong> Above-ground biomass estimation of 260 forest plots globally</p>
+
+            <p>This dataset is licensed under a <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License (CC-BY 4.0)</a>.</p>
+
+            <p><strong>When using this data, please cite the data package:</strong></p>
+
+            <p>
+                Dmitry Schepaschenko, Jérôme Chave, Oliver L. Phillips, Simon L. Lewis, Stuart J. Davies,
+                Maxime Réjou-Méchain, Plinio Sist, Klaus Scipal, Christoph Perger, Bruno Herault, Nicolas Labrière,
+                Florian Hofhansl, Kofi Affum-Baffoe, Alexei Aleinikov, Alfonso Alonso, Christian Amani, Alejandro
+                Araujo-Murakami, John Armston,, Luzmila Arroyo, Nataly Ascarrunz, Celso Azevedo, Timothy Baker,
+                Radomir Bałazy, Caroline Bedeau, Nicholas Berry, Andrii M. Bilous, Svitlana Yu. Bilous,
+                Pulchérie Bissiengou, Lilian Blanc, Kapitolina S. Bobkova, Tatyana Braslavskaya, Roel Brienen,
+                David F.R.P. Burslem, Richard Condit, Aida Cuni-Sanchez, Dilshad Danilina, Dennis del Castillo Torres,
+                Géraldine Derroire, Laurent Descroix, Eleneide Doff Sotta, Marcus V.N. d'Oliveira, Christopher Dresel,
+                Terry Erwin, Mikhail D. Evdokimenko, Jan Falck, Ted R. Feldpausch, Ernest G. Foli, Robin Foster,
+                Steffen Fritz, Antonio Damian Garcia-Abril, Aleksey Gornov, Maria Gornova, Ernest Gothard-Bassébé,
+                Sylvie Gourlet-Fleury,, Marcelino Guedes, Keith Hamer, Farida Herry Susanty, Niro Higuchi,
+                Eurídice N. Honorio Coronado, Wannes Hubau,, Stephen Hubbell, Ulrik Ilstedt, Viktor V. Ivanov,
+                Milton Kanashiro, Anders Karlsson, Viktor N. Karminov, Timothy Killeen, Jean-Claude Koffi Konan,
+                Maria Konovalova, Florian Kraxner, Jan Krejza, Haruni Krisnawati, Leonid V. Krivobokov,
+                Mikhail A. Kuznetsov, Ivan Lakyda, Petro I. Lakyda, Juan Carlos Licona, Richard M. Lucas,
+                Natalia Lukina, Daniel Lussetti, Yadvinder Malhi, José Antonio Manzanera, Beatriz Marimon,
+                Ben Hur Marimon Junior, Rodolfo Vasquez Martinez, Olga V. Martynenko,, Maksym S. Matsala,
+                Raisa K. Matyashuk, Lucas Mazzei, Hervé Memiaghe, Casimiro Mendoza, Abel Monteagudo-Mendoza,
+                Olga V. Morozyuk, Liudmila Mukhortova, Samsudin Musa, Dina I. Nazimova, Toshinori Okuda,
+                Luis Claudio Oliveira, Petr V. Ontikov, Andrey F. Osipov, Stephan Pietsch, Maureen Playfair,
+                John Poulsen, Vladimir G. Radchenko, Kenneth Rodney, Andes H. Rozak, Ademir Ruschel, Ervan Rutishauser,
+                Linda See, Maria Shchepashchenko, Nikolay Shevchenko, Anatoly Shvidenko,, Marcos Silveira, James Singh,
+                Bonaventure Sonké, Cintia Souza, Krzysztof Stereńczak, Leonid Stonozhenko, Martin J P Sullivan,
+                Justyna Szatniewska, Hermann Taedoumg, Hans ter Steege, Elena Tikhonova, Marisol Toledo,
+                Olga V. Trefilova, Ruben Valbuena, Luis Valenzuela Gamarra, Sergey Vasiliev, Estella F. Vedrova,
+                Sergey V. Verhovets,, Edson Vidal, Nadezhda A. Vladimirova, Jason Vleminckx, Vincent A. Vos,
+                Foma K. Vozmitel, Wolfgang Wanek, Thales A. P. West, Hannsjorg Woell, John T. Woods, Verginia Wortel,
+                Toshihiro Yamada, Nur Hajar Zamah Shari, Irié Casimir Zo-Bi (2019).
+                A global reference dataset for remote sensing of forest biomass. The Forest Observation System approach.
+                [Data Collection]. DOI: 10.22022/ESM/03-2019.38.
+
+            </p>
+            <ul>
+                <li>
+                    <p>
+                        FOS plot data v2019.04.10 (<a href="~/Data/FOS_Plots_v2019.04.10.xlsx" target="_blank">download</a>)
+                    </p>
+                </li>
+                <li>
+                    <p>
+                        Data processing protocols:
+                    </p>
+                    <ul>
+                        <li>
+                            <p>
+                                ForestGEO (<a href="~/Data/RepFOS_14Feb17_BCI_ForestGEO.pdf" target="_blank">download</a>)
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                ForestPlots (<a href="~/Data/RepFOS_14Feb17_ForestPlots.pdf" target="_blank">download</a>)
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                AfriSAR (<a href="~/Data/RepFOS_15Feb19_AfriSAR.pdf" target="_blank">download</a>)
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                TropiSAR (<a href="~/Data/RepFOS_15Feb19_TropiSAR.pdf" target="_blank">download</a>)
+                            </p>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</section>
+
+
+
+<!-- Resources-->
+<section class="success" id="resource-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>Resources</h2>
+                <hr class="star-light" />
+            </div>
+        </div>
+        <div class="row center-row" id="resources-documents">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                <a href="~/Docs/2019_05_FOS_Schepaschenko.pdf" target="_blank">
+                    <img class="img-responsive" src="~/images/docs/FOS_Presentation_Milan.png" /><br />
+                    <span>Presentation at ESA Living Planet Symposium", Milan, 16 May 2019</span>
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                <a href="http://pure.iiasa.ac.at/id/eprint/15893/" target="_blank">
+                    <img class="img-responsive" src="~/images/docs/FOS_Paper_Abstract.png" /><br />
+                    <span>Ground Data are Essential for Biomass Remote Sensing Missions</span>
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                <a href="~/Docs/NISAR_Vegetation_Biomass_Workshop_Report.pdf" target="_blank">
+                    <img class="img-responsive" src="~/images/docs/Vegetation_Biomass_Workshop.png" /><br />
+                    <span>2016 ESA-NASA-Smithsonian Vegetation Biomass Workshop report</span>
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                <a href="https://www.nature.com/articles/s41597-019-0196-1" target="_blank">
+                    <img class="img-responsive" src="~/images/docs/FOS_ScientificDataAbstract.png" /><br />
+                    <span>The Forest Observation System, building a global reference dataset for remote sensing of forest biomass</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<!-- Code of Conduct -> rename to Terms and Conditions-->
+
+<section class="portfolio" id="code-of-conduct-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>Terms and Conditions</h2>
+                <hr class="star-primary">
+            </div>
+        </div>
+
+        <div class="row center-row" id="code-of-conduct-content">
+            <div class="col-md-10 col-md-offset-1">
+                <p><strong>1. INTRODUCTION</strong></p>
+
+                <p>
+                    a. Definitions
+                </p>
+
+                <ul>
+                    <li>
+                        Data: plot-aggregated estimates of forest structure (e.g. aboveground biomass, Lorey’s height, community-weighted mean wood density) and associated location and environmental (e.g. elevation, precipitation) data;
+                    </li>
+                    <li>
+                        Data Owner: individual or organization who legally owns the Intellectual Property Rights over the Data;
+                    </li>
+                    <li>
+                        Data Provider: individual or organization who provides the Data;
+                    </li>
+                    <li>Data User: person to whom Data access is granted following Data Use Agreement (defined below).</li>
+                </ul>
+
+                <p>
+                    b. Generalities
+                </p>
+                <p>
+                    DATA.GEO-TREES (<a href="https://data.geo-trees.org" target="_blank">https://data.geo-trees.org</a>) is a European Space Agency (ESA)-funded international initiative to establish and maintain a global in situ forest biomass database. DATA.GEO-TREES provides Data Users access to high-quality Data by partnering with established networks responsible for managing and curating permanent forest plots. In doing so, DATA.GEO-TREES also aims at connecting the remote sensing community with Data Owners/Data Providers to foster their collaborations. DATA.GEO-TREES only stores and provides plot aggregated data and will neither ask for nor store tree-by-tree data.
+                </p>
+                <p>
+                    The present Terms and Conditions of DATA.GEO-TREES do not replace those established by the different Data Providers and Data Owners. In case Data Providers are plot networks, their Terms and Conditions can be accessed at their websites. The plot networks currently involved in DATA.GEO-TREES are:
+                </p>
+                <ul>
+                    <li>
+                        ForestGEO (site-specific; see <a href="http://ctfs.si.edu/datarequest/index.php/main" target="_blank">http://ctfs.si.edu/datarequest/index.php/main</a>)
+                    </li>
+                    <li>
+                        ForestPlots.net (<a href="http://www.forestplots.net/en/join-forestplots/code-of-conduct" target="_blank">http://www.forestplots.net/en/join-forestplots/code-of-conduct</a>)
+                    </li>
+                    <li>
+                        IIASA (<a href="http://www.iiasa.ac.at/web/terms-of-use.html" target="_blank">http://www.iiasa.ac.at/web/terms-of-use.html</a>)
+                    </li>
+                    <li>TERN AusCover (<a href="https://www.tern.org.au/datalicence" target="_blank">https://www.tern.org.au/datalicence</a>)</li>
+                    <li>TmFO (<a href="http://tmfo.org/Data/data%20policy.html" target="_blank">http://tmfo.org/Data/data%20policy.html</a>)</li>
+                </ul>
+                <br />
+                <p><strong>2. DATA OWNERSHIP</strong></p>
+
+                <p>
+                    The Intellectual Property Rights (IPR) of the tree-by-tree plot data are with the Data Owners. Data Owners who decide to share plot-aggregated summary data, do so under a Creative Commons licensing. Data Users are strongly encouraged to get in touch with Data Owners/Data Providers to interpret their results.
+                </p>
+                <br />
+                <p><strong>3. DATA LICENSING</strong></p>
+
+                <p>
+                    Unless otherwise stated, the Creative Commons – Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) of DATA.GEO-TREES Data is the default license (https://creativecommons.org/licenses/by-sa/4.0/). Data Users are free to share and adapt the Data for any purpose.
+                </p>
+                <br />
+                <p><strong>4. DATA ACCESS REQUIREMENTS</strong></p>
+
+                <p>
+                    To help DATA.GEO-TREES to monitor its data use and to interact with the Data User community (e.g. to provide information about important updates) the following registration information is encouraged to be shared by the Data User:
+                </p>
+
+                <ul>
+                    <li>Name;</li>
+                    <li>Affiliation;</li>
+                    <li>Email;</li>
+                    <li>Address;</li>
+                    <li>Notification that the below Data Use Agreement has been read;;</li>
+                    <li>Statement of Intended Use.</li>
+                </ul>
+                <br />
+                <p><strong>5. DATA USE AGREEMENT</strong></p>
+
+                <p>
+                    a. Transferability
+                </p>
+                <p>
+                    In compliance with Data licensing CC BY-SA 4.0, Data Users are free to share the Data with other parties. Yet, such parties are strongly encouraged to register independently if they want to access and use the most up-to-date version of the Data.
+                </p>
+
+                <p>
+                    b. Acknowledgements
+                </p>
+                <p>
+                    The Data User commits to including an acknowledgment in any publication that utilizes the Data. This acknowledgment should reference the GEO-TREES initiative and, in addition, either the Plot networks (such as ForestGEO, ForestPlots.net, IIASA, TERN AusCover, TmFO, if substantial data from one of these networks is utilized) or the Plot PIs (if specific plot data were employed in the study).
+                </p>
+
+                <p>
+                    c. Citation
+                </p>
+                <p>
+                    To acknowledge the work done to create and share the Data, the Data User encouraged to include the following citation:
+                    Schepaschenko, D., Chave, J., Phillips, O.L. et al. The Forest Observation System, building a global reference dataset for remote sensing of forest biomass. Sci Data 6, 198 (2019). <a href="https://doi.org/10.1038/s41597-019-0196-1" target="_blank">https://doi.org/10.1038/s41597-019-0196-1</a>
+                </p>
+                <p>
+                    DATA.GEO-TREES also appreciates that Data Users send them an electronic copy (e.g. via DOI link) of the publications that used the Data.
+                </p>
+                <br />
+                <p><strong>6. DISCLAIMER</strong></p>
+
+                <p>
+                    THE DATA IS PROVIDED “AS IS”, WITHOUT ANY GUARANTEES.
+                </p>
+            </div>
+        </div>
+
+
+
+
+    </div>
+</section>
+
+<!-- Supporting Projects-->
+<section class="portfolio">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>Supporting Forest Plot Networks</h2>
+                <hr class="star-primary">
+            </div>
+        </div>
+        <div class="row center-row supportingProjectLogos">
+            <div class="col-lg-4 col-lg-offset-2 col-md-4 col-md-offset-2 col-sm-6 col-xs-6 text-center">
+                <a href="http://www.rainfor.org" target="_blank">
+                    <img src="~/images/partners/rainfor.png" />
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-6 text-center">
+                <a href="http://www.forestplots.net" target="_blank">
+                    <img src="~/images/partners/forest-plots-net.png" />
+                </a>
+            </div>
+        </div>
+        <div class="row center-row supportingProjectLogos">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                <a href="http://www.forestgeo.si.edu/" target="_blank">
+                    <img src="~/images/partners/ctfs.png" />
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                <a href="http://tmfo.org" target="_blank">
+                    <img src="~/images/partners/tfo.jpg" />
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center">
+                <a href="http://www.auscover.org.au/xwiki/bin/view/Product+pages/Biomass+Plot+Library" target="_blank">
+                    <img src="~/images/partners/auscover.png" />
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="portfolio">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>Project team</h2>
+                <hr class="star-primary">
+            </div>
+        </div>
+        @*<div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12 text-center">
+                    <img id="partner-logos" class="img-responsive" src="~/images/partners/png" />
+                </div>
+            </div>*@
+        <div class="row  center-row">
+            <div class="col-lg-2 col-lg-offset-3 col-md-3 col-md-offset-2 col-sm-4 col-xs-4 center">
+                <a href="http://www.iiasa.ac.at" target="_blank">
+                    <img class="img-responsive" src="~/images/partners/iiasa.png" />
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4 center">
+                <a href="http://www.univ-tlse3.fr" target="_blank">
+                    <img class="img-responsive" src="~/images/partners/ups.png" />
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4 center">
+                <a href="https://www.leeds.ac.uk" target="_blank">
+                    <img class="img-responsive" src="~/images/partners/leeds.png" />
+                </a>
+            </div>
+        </div>
+        <div class="row center-row">
+            <div class="col-lg-1 col-lg-offset-3 col-md-2 col-md-offset-2 col-sm-2 col-xs-2 center">
+                <a href="http://www.ucl.ac.uk" target="_blank">
+                    <img class="img-responsive" src="~/images/partners/ucl.jpg" />
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-5 col-xs-5 center" style="padding-top:1em">
+                <a href="http://www.stri.si.edu" target="_blank">
+                    <img class="img-responsive" src="~/images/partners/smithsonian.gif" />
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-5 col-xs-5 center" style="padding-top:1em">
+                <a href="https://www.spatial-focus.net" target="_blank">
+                    <img class="img-responsive" src="~/images/partners/focus.png" />
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-1 col-lg-offset-3 col-md-2 col-md-offset-2 col-sm-2 col-xs-2 center">
+                <a href="http://amap.cirad.fr/en/index.php" target="_blank">
+                    <img class="img-responsive" src="~/images/partners/amap.png" />
+                </a>
+            </div>
+            <div class="col-lg-3 col-md-4 col-sm-5 col-xs-5 center" style="padding-top:1em">
+                <a href="http://www.esa.int" target="_blank">
+                    <img class="img-responsive" src="~/images/partners/esa.png" />
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-5 col-xs-5 center" style="padding-top:1em">
+                <a href="https://www.cirad.fr/en" target="_blank">
+                    <img class="img-responsive" src="~/images/partners/cirad.png" />
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Footer -->
+<footer class="text-center" id="contacts-section">
+    <div class="footer-above">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2>Contacts</h2>
+                    <hr class="star-primary-light">
+                </div>
+                <div class="footer-col col-md-6">
+                    <p>
+                        Dr. Dmitry Schepaschenko<br />
+                        International Institute for Applied Systems Analysis<br />
+                        Schlossplatz 1, 2361 Laxenburg, Austria<br />
+                        <i class="fa fa-phone"></i> +43(0) 2236 807 453<br />
+                        <i class="fa fa-print"></i> +43(0) 2236 807 599<br />
+                        <i class="fa fa-envelope-o"></i>
+                        <a href="#" class="mailto" data-recipient="dmitry">schepd<i class="fa fa-at"></i>iiasa.ac.at</a>
+                    </p>
+                </div>
+                <div class="footer-col col-md-6">
+                    <p>
+                        Dr. Jérôme Chave<br />
+                        Université Toulouse III - Paul Sabatier<br />
+                        118 route de Narbonne, 31062 Toulouse, France<br />
+                        <i class="fa fa-phone"></i> +(33)561556760<br /><br />
+                        <i class="fa fa-envelope-o"></i>
+                        <a href="#" class="mailto" data-recipient="jerome">jerome.chave<i class="fa fa-at"></i>univ-tlse3.fr</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer-below">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    Copyright &copy; Forest Observation System
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
+<div class="scroll-top page-scroll visible-xs visible-sm">
+    <a class="btn btn-primary" href="#page-top">
+        <i class="fa fa-chevron-up"></i>
+    </a>
+</div>

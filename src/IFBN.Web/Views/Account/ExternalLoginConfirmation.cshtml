@@ -1,0 +1,135 @@
+﻿@using System.Threading.Tasks
+@model IFBN.Web.Models.ExternalLoginConfirmationViewModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<section class="portfolio" id="login-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <h2>Fill your user profile</h2>
+                <hr class="star-light">
+            </div>
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <p>Associate your @ViewData["LoginProvider"] account.</p>
+                </div>
+            </div>
+            <div class="row" id="registrationForm">
+                <form action="@Url.Action("ExternalLoginConfirmation","Account", new { ReturnUrl = ViewData["ReturnUrl"] })" method="post">
+                    <h4>Association Form</h4>
+                    <hr />
+                    <div asp-validation-summary="All" class="text-danger" id="registrationValidation"></div>
+
+                    <p>
+                        You've successfully authenticated with <strong>@ViewData["LoginProvider"]</strong>.
+                        Please enter an email address for this site below and click the Register button to finish
+                        logging in. <strong>All fields are required.</strong>
+                    </p>
+                    <div class="form-group">
+                        <label asp-for="Email" class="col-md-2 control-label"></label>
+                        @Html.EditorFor(m => m.Email, new { htmlAttributes = new { disabled = "disabled", @readonly = "readonly" } })
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Username" class="col-md-2 control-label"></label>
+                        @Html.EditorFor(m => m.Username)
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Institution" class="col-md-2 control-label"></label>
+                        @Html.EditorFor(m => m.Institution)
+                        <span asp-validation-for="Institution" class="text-danger"></span>
+                    </div>
+					<div class="form-group">
+						<label asp-for="Field" class="col-md-2 control-label"></label>
+						@Html.EditorFor(m => m.Field)
+						<span asp-validation-for="Field" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label asp-for="Affiliation" class="col-md-2 control-label"></label>
+						@Html.EditorFor(m => m.Affiliation)
+						<span asp-validation-for="Affiliation" class="text-danger"></span>
+					</div>
+                    <div class="form-group">
+                        <label asp-for="HasAcceptedTerms" class="col-md-2 control-label"></label>
+                        @Html.EditorFor(m => m.HasAcceptedTerms)
+                        <span asp-validation-for="HasAcceptedTerms" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-center" style="margin-top: 3em;">
+                <h3>Code of Conduct</h3>
+            </div>
+        </div>
+        <div class="row center-row" id="resources-code">
+            <div class="col-md-10 col-md-offset-1">
+                <p><strong>Collaborate</strong></p>
+
+                <p>
+                    A major aim of FOS is to promote and support long-term collaboration among forest researchers across the world.
+                    To protect the rights of partners who have invested significant resources to collect these data (time and money)
+                    and to ensure that these data become part of the scientific process in a transparent way we request that:
+                </p>
+
+                <ul>
+                    <li>
+                        All users of FOS data <strong>discuss</strong> with other collaborators, such as data providers,
+                        botanists and researchers, the research question that they wish to address, and <strong>involve</strong>
+                        them in the analysis, writing, and co-authorship of results.
+                    </li>
+                    <li>
+                        All users of FOS obtain the <strong>explicit consent</strong> of the relevant principal investigator(s)
+                        and plot data manager before submitting any work for publication.The transfer of any data between FOS
+                        partners does not imply the automatic transfer of rights to publish the data.
+                    </li>
+                    <li>
+                        The lead author of any publication using FOS data ensures that
+                        <strong>all co-author contributions are clearly defined</strong>: who was responsible for conceiving
+                        the idea, designing the study, collecting the field data, performing the analysis, contributing materials
+                        or analysis tools, analysing the data, and writing the paper.
+                    </li>
+                    <li>FOS is fully <strong>cited</strong> in all publications that use any data or information obtained through FOS.</li>
+                </ul>
+
+                <p><strong>Contribute</strong></p>
+
+                <p>
+                    FOS depends on the contribution of high quality forest plot data by its partners.  Do not only use the
+                    data but become an active partner and support the long-term future of this observational effort:
+                </p>
+
+                <ul>
+                    <li>
+                        We encourage the user community to <strong>reinvest</strong> in developing the network, by
+                        <strong>uploading</strong> their own data, and/or <strong>funding</strong> recensuses and
+                        expansion of the contributing plot networks into under-sampled regions, and/or
+                        <strong>contributing</strong> to the costs of database management and functionality.
+                    </li>
+                    <li>
+                        We encourage <strong>contributors</strong> to agree that their data can be downloaded and used.
+                        We will only make data publicly available with the data owner’s permission.
+                    </li>
+                    <li>
+                        We request that potential
+                        <strong>
+                            commercial users or large research consortia contribute
+                            financially towards the costs
+                        </strong>
+                        of maintaining the database resource and of reinvesting
+                        in forest measurement and technical training.
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+
+    </div>
+</section>

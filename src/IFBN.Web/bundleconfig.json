@@ -1,0 +1,22 @@
+[
+  {
+    "outputFileName": "wwwroot/scripts/bundle.js",
+    "inputFiles": [
+      "wwwroot/lib/jquery/jquery.js",
+      "wwwroot/lib/jquery-validate/jquery.validate.js",
+      "wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js",
+      "wwwroot/scripts/jquery.easing.js",
+      "wwwroot/lib/bootstrap_3_3_7/dist/js/bootstrap.js",
+      "wwwroot/scripts/classie.js",
+      "wwwroot/scripts/cbpAnimatedHeader.js",
+      "wwwroot/lib/knockout/knockout-min.js",
+      "wwwroot/scripts/freelancer.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/bundle.min.css",
+    "inputFiles": [
+      "wwwroot/css/bundle.css"
+    ]
+  }
+]

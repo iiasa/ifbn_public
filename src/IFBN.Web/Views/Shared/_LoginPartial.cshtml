@@ -1,0 +1,24 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using IFBN.Web.Models
+@using IFBN.Data.Entities
+
+@inject SignInManager<ApplicationUser> signInManager
+@inject UserManager<ApplicationUser> userManager
+
+@if (signInManager.IsSignedIn(User))
+{
+    <form asp-area="" asp-controller="Account" asp-action="LogOut" method="post" id="logoutForm">
+            @*<a asp-area="" asp-controller="Manage" asp-action="Index" title="Manage">*@
+            Hello @userManager.GetUserName(User)!
+            @*</a>*@
+        <div class="text-right">
+            <button type="submit" class="btn btn-info">Log off</button>
+        </div>
+</form>
+}
+else
+{
+    <div class="text-right">
+        <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-info">Log in</a>
+    </div>
+}

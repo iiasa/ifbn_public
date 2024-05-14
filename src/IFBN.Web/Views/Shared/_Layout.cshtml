@@ -1,0 +1,133 @@
+﻿@using IFBN.Web.Core
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@ViewData["Title"] - data.GEO-TREES</title>
+
+    @*<link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/lib/bootswatch/flatly/bootstrap.css" rel="stylesheet" />
+    <link href="~/lib/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <link href="~/css/ol.css" rel="stylesheet" />
+    <link href="~/css/openlayers-layerswitcher.css" rel="stylesheet" />
+    <link href="~/css/freelancer/freelancer.css" rel="stylesheet" />*@
+
+    <link href="~/css/bundle.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/3.20.1/ol.css" rel="stylesheet" />
+    <link href="~/css/openlayers-layerswitcher.css" rel="stylesheet" />
+
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+</head>
+<body id="page-top" class="index">
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#page-top">
+                    <img class="img-responsive hidden-xs hidden-s" src="~/images/logo_60.png" alt="">
+                    <span id="title" class="">data.GEO-TREES</span>
+                </a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="hidden">
+                        <a href="#page-top"></a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#map-section">Map</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#about-section">About</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#news-section">News</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#contribute-section">Contribute</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#data-package-section">Data Package</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#resource-section">Resources</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#code-of-conduct-section">Terms and Conditions</a>
+                    </li>
+                    <li class="page-scroll">
+                        <a href="#contacts-section">Contacts</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+    @RenderBody()
+
+    @*<script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+    <script src="~/scripts/jquery.easing.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/scripts/classie.js"></script>
+    <script src="~/scripts/cbpAnimatedHeader.js"></script>
+    <script src="~/lib/knockout/dist/knockout.js"></script>
+    <script src="~/scripts/freelancer.js"></script>
+    <script src="~/scripts/ol.js"></script>
+    <script src="~/scripts/openlayers-layerswitcher.js"></script>
+    <script src="~/scripts/home-index.js" defer="defer"></script>*@
+
+    <script src="~/scripts/bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/3.20.1/ol.js"></script>
+	<script src="~/scripts/openlayers-layerswitcher.js"></script>
+	<script src="~/scripts/api.js"></script>
+    <script src="~/scripts/home-index.js" defer="defer"></script>
+
+    <script defer="defer">
+        $(document).ready(function () {
+            $(".mailto").click(function (event) {
+                event.preventDefault();
+                $.getJSON("/Home/GetEmailAddress", { "recipient": $(this).data("recipient") }, function (data) {
+                    clickMailto(data);
+                });
+                return false;
+            });
+        });
+    </script>
+
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments);
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o),
+				m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            m.parentNode.insertBefore(a, m);
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-73706601-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>
